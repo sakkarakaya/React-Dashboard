@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Member from './Member';
 import { MembersContext } from "../contexts/MembersContext";
-import { Button, Modal } from "react-bootstrap"
+import { Alert, Button, Modal } from "react-bootstrap"
 import AddForm from './AddForm';
 
 const MemberList = () => {
@@ -9,9 +9,22 @@ const MemberList = () => {
     const { members } = useContext(MembersContext);
 
     const [show, setShow] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+
+    const handleAlert = () => {
+        setShowAlert(true);
+        setTimeout(() => {
+            setShowAlert(false);
+        }, 2500);
+    }
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    useEffect(() => {
+        handleClose();
+        return () => handleAlert();
+    }, [members])
 
     return (
         <>
@@ -28,6 +41,11 @@ const MemberList = () => {
                     </div>
                 </div>
             </div>
+
+            <Alert show={showAlert} variant="success">
+                Members updated successfully!
+            </Alert>
+
             <table className="table table-striped table-hover">
                 <thead>
                     <tr>
@@ -40,7 +58,13 @@ const MemberList = () => {
                 </thead>
                 <tbody>
 
-                    <Member members={members} />
+                    {
+                        members.sort((a, b) => a.name < b.name ? -1 : 1).map((m) => (
+                            <tr key={m.id}>
+                                <Member m={m} key={m.id} />
+                            </tr>
+                        ))
+                    }
 
                 </tbody>
             </table>
